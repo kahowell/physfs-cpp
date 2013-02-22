@@ -3,12 +3,13 @@
 #include <string.h>
 #include "physfs.hpp"
 
-using namespace PhysFS;
 using std::streambuf;
 using std::streamsize;
 using std::streamoff;
 using std::streampos;
 using std::ios_base;
+
+namespace PhysFS {
 
 class fbuf : public streambuf {
 private:
@@ -19,7 +20,7 @@ private:
 		if (PHYSFS_eof(file)) {
 			return traits_type::eof();
 		}
-		std::size_t bytesRead = PHYSFS_read(file, buffer, egptr() - buffer, 1);
+		std::size_t bytesRead = PHYSFS_read(file, buffer, 1, egptr() - buffer);
 		if (bytesRead < 1) {
 			return traits_type::eof();
 		}
@@ -110,13 +111,24 @@ PhysFS::size_t fstream::length() {
 	return PHYSFS_fileLength(file);
 }
 
-ifstream::ifstream(PHYSFS_File * file) : fstream(file), std::istream(new fbuf(file)) {}
+ifstream::ifstream(const string& filename)
+	: fstream(PHYSFS_openRead(filename.c_str())), std::istream(new fbuf(file)) {}
 
 ifstream::~ifstream() {
 	delete rdbuf();
 }
 
-ofstream::ofstream(PHYSFS_File * file) : fstream(file), std::ostream(new fbuf(file)) {}
+PHYSFS_File* openWithMode(char const * filename, ofstream::mode writeMode) {
+	if (writeMode == ofstream::WRITE) {
+		return PHYSFS_openWrite(filename);
+	}
+	else {
+		return PHYSFS_openAppend(filename);
+	}
+}
+
+ofstream::ofstream(const string& filename, mode writeMode)
+	: fstream(openWithMode(filename.c_str(), writeMode)), std::ostream(new fbuf(file)) {}
 
 ofstream::~ofstream() {
 	delete rdbuf();
@@ -247,21 +259,6 @@ sint64 getLastModTime(const string& filename) {
 	return PHYSFS_getLastModTime(filename.c_str());
 }
 
-ofstream openWrite(const string& filename) {
-	PHYSFS_File * file = PHYSFS_openWrite(filename.c_str());
-	return ofstream(file);
-}
-
-ofstream openAppend(const string& filename) {
-	PHYSFS_File * file = PHYSFS_openAppend(filename.c_str());
-	return ofstream(file);
-}
-
-ifstream openRead(const string& filename) {
-	PHYSFS_File * file = PHYSFS_openRead(filename.c_str());
-	return ifstream(file);
-}
-
 bool isInit() {
 	return PHYSFS_isInit();
 }
@@ -373,4 +370,6 @@ string Util::utf8FromLatin1(const char* src) {
 	PHYSFS_utf8FromLatin1(src, buffer, length);
 	value.append(buffer);
 	return value;
+}
+
 }

@@ -53,16 +53,18 @@ public:
 };
 
 class ifstream : public fstream, public std::istream {
-	explicit ifstream(const ifstream&);
 public:
-	ifstream(PHYSFS_File * file);
+	ifstream(string const & filename);
 	~ifstream();
 };
 
 class ofstream : public fstream, public std::ostream {
-	explicit ofstream(const ofstream&);
 public:
-	ofstream(PHYSFS_File * file);
+	typedef enum {
+		WRITE,
+		APPEND
+	} mode;
+	ofstream(string const & filename, mode writeMode = WRITE);
 	~ofstream();
 };
 
@@ -115,12 +117,6 @@ bool isDirectory(string const & filename);
 bool isSymbolicLink(string const & filename);
 
 sint64 getLastModTime(string const & filename);
-
-ofstream openWrite(string const & filename);
-
-ofstream openAppend(string const & filename);
-
-ifstream openRead(string const & filename);
 
 bool isInit();
 
