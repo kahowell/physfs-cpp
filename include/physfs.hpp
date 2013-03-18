@@ -8,6 +8,12 @@
 
 namespace PhysFS {
 
+typedef enum {
+	READ,
+	WRITE,
+	APPEND
+} mode;
+
 using std::string;
 
 typedef std::vector<string> StringList;
@@ -42,30 +48,32 @@ typedef std::vector<ArchiveInfo> ArchiveInfoList;
 
 typedef uint64 size_t;
 
-class fstream {
+class base_fstream {
 protected:
 	PHYSFS_File * const file;
 public:
-	fstream(PHYSFS_File * file);
-	virtual ~fstream();
+	base_fstream(PHYSFS_File * file);
+	virtual ~base_fstream();
 	bool eof();
 	size_t length();
 };
 
-class ifstream : public fstream, public std::istream {
+class ifstream : public base_fstream, public std::istream {
 public:
 	ifstream(string const & filename);
 	~ifstream();
 };
 
-class ofstream : public fstream, public std::ostream {
+class ofstream : public base_fstream, public std::ostream {
 public:
-	typedef enum {
-		WRITE,
-		APPEND
-	} mode;
 	ofstream(string const & filename, mode writeMode = WRITE);
 	~ofstream();
+};
+
+class fstream : public base_fstream, public std::iostream {
+public:
+	fstream(string const & filename, mode openMode = READ);
+	~fstream();
 };
 
 Version getLinkedVersion();

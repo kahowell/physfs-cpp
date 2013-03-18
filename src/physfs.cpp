@@ -97,40 +97,49 @@ public:
 	}
 };
 
-fstream::fstream(PHYSFS_File* file) : file(file) {}
+base_fstream::base_fstream(PHYSFS_File* file) : file(file) {}
 
-fstream::~fstream() {
+base_fstream::~base_fstream() {
 	PHYSFS_close(file);
 }
 
-bool fstream::eof() {
+bool base_fstream::eof() {
 	return PHYSFS_eof(file);
 }
 
-PhysFS::size_t fstream::length() {
+PhysFS::size_t base_fstream::length() {
 	return PHYSFS_fileLength(file);
 }
 
 ifstream::ifstream(const string& filename)
-	: fstream(PHYSFS_openRead(filename.c_str())), std::istream(new fbuf(file)) {}
+	: base_fstream(PHYSFS_openRead(filename.c_str())), std::istream(new fbuf(file)) {}
 
 ifstream::~ifstream() {
 	delete rdbuf();
 }
 
-PHYSFS_File* openWithMode(char const * filename, ofstream::mode writeMode) {
-	if (writeMode == ofstream::WRITE) {
+PHYSFS_File* openWithMode(char const * filename, mode openMode) {
+	switch (openMode) {
+	case WRITE:
 		return PHYSFS_openWrite(filename);
-	}
-	else {
+	case APPEND:
 		return PHYSFS_openAppend(filename);
+	case READ:
+		return PHYSFS_openRead(filename);
 	}
 }
 
 ofstream::ofstream(const string& filename, mode writeMode)
-	: fstream(openWithMode(filename.c_str(), writeMode)), std::ostream(new fbuf(file)) {}
+	: base_fstream(openWithMode(filename.c_str(), writeMode)), std::ostream(new fbuf(file)) {}
 
 ofstream::~ofstream() {
+	delete rdbuf();
+}
+
+fstream::fstream(const string& filename, mode openMode)
+	: base_fstream(openWithMode(filename.c_str(), openMode)), std::iostream(new fbuf(file)) {}
+
+fstream::~fstream() {
 	delete rdbuf();
 }
 
