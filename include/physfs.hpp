@@ -61,19 +61,19 @@ public:
 class ifstream : public base_fstream, public std::istream {
 public:
 	ifstream(string const & filename);
-	~ifstream();
+	virtual ~ifstream();
 };
 
 class ofstream : public base_fstream, public std::ostream {
 public:
 	ofstream(string const & filename, mode writeMode = WRITE);
-	~ofstream();
+	virtual ~ofstream();
 };
 
 class fstream : public base_fstream, public std::iostream {
 public:
 	fstream(string const & filename, mode openMode = READ);
-	~fstream();
+	virtual ~fstream();
 };
 
 Version getLinkedVersion();
