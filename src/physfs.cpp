@@ -4,9 +4,6 @@
 #include "physfs.hpp"
 
 using std::streambuf;
-using std::streamsize;
-using std::streamoff;
-using std::streampos;
 using std::ios_base;
 
 namespace PhysFS {
@@ -28,7 +25,7 @@ private:
 		return *gptr();
 	}
 
-	streampos seekoff(streamoff pos, ios_base::seekdir dir, ios_base::open_mode mode) {
+	pos_type seekoff(off_type pos, ios_base::seekdir dir, ios_base::openmode mode) {
 		switch (dir) {
 		case std::ios_base::beg:
 			PHYSFS_seek(file, pos);
@@ -49,7 +46,7 @@ private:
 		return PHYSFS_tell(file);
 	}
 
-	std::streampos seekpos(streampos pos, std::ios_base::open_mode mode) {
+	pos_type seekpos(pos_type pos, std::ios_base::openmode mode) {
 		PHYSFS_seek(file, pos);
 		if (mode == std::ios_base::in) {
 			setg(egptr(), egptr(), egptr());
