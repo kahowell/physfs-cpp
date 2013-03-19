@@ -31,7 +31,8 @@ private:
 			PHYSFS_seek(file, pos);
 			break;
 		case std::ios_base::cur:
-			PHYSFS_seek(file, PHYSFS_tell(file) + pos);
+			// subtract characters currently in buffer from seek position
+			PHYSFS_seek(file, (PHYSFS_tell(file) + pos) - (egptr() - gptr()));
 			break;
 		case std::ios_base::end:
 			PHYSFS_seek(file, PHYSFS_seek(file, PHYSFS_fileLength(file) + pos));
