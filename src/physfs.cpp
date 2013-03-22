@@ -91,7 +91,7 @@ public:
 
 	~fbuf() {
 		sync();
-		delete buffer;
+		delete [] buffer;
 	}
 };
 
