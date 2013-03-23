@@ -17,7 +17,7 @@ private:
 		if (PHYSFS_eof(file)) {
 			return traits_type::eof();
 		}
-		std::size_t bytesRead = PHYSFS_read(file, buffer, 1, egptr() - buffer);
+		size_t bytesRead = PHYSFS_read(file, buffer, 1, bufferSize);
 		if (bytesRead < 1) {
 			return traits_type::eof();
 		}
@@ -35,13 +35,13 @@ private:
 			PHYSFS_seek(file, (PHYSFS_tell(file) + pos) - (egptr() - gptr()));
 			break;
 		case std::ios_base::end:
-			PHYSFS_seek(file, PHYSFS_seek(file, PHYSFS_fileLength(file) + pos));
+			PHYSFS_seek(file, PHYSFS_fileLength(file) + pos);
 			break;
 		}
-		if (mode == std::ios_base::in) {
+		if (mode & std::ios_base::in) {
 			setg(egptr(), egptr(), egptr());
 		}
-		else {
+		if (mode & std::ios_base::out) {
 			setp(buffer, buffer);
 		}
 		return PHYSFS_tell(file);
@@ -49,10 +49,10 @@ private:
 
 	pos_type seekpos(pos_type pos, std::ios_base::openmode mode) {
 		PHYSFS_seek(file, pos);
-		if (mode == std::ios_base::in) {
+		if (mode & std::ios_base::in) {
 			setg(egptr(), egptr(), egptr());
 		}
-		else {
+		if (mode & std::ios_base::out) {
 			setp(buffer, buffer);
 		}
 		return PHYSFS_tell(file);
@@ -79,10 +79,11 @@ private:
 	}
 
 	char * buffer;
+	size_t const bufferSize;
 protected:
 	PHYSFS_File * const file;
 public:
-	fbuf(PHYSFS_File * file, std::size_t bufferSize = 256) : file(file) {
+	fbuf(PHYSFS_File * file, std::size_t bufferSize = 2048) : file(file), bufferSize(bufferSize) {
 		buffer = new char[bufferSize];
 		char * end = buffer + bufferSize;
 		setg(end, end, end);
