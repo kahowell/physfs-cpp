@@ -22,7 +22,7 @@ private:
 			return traits_type::eof();
 		}
 		setg(buffer, buffer, buffer + bytesRead);
-		return *gptr();
+		return (unsigned char) *gptr();
 	}
 
 	pos_type seekoff(off_type pos, ios_base::seekdir dir, ios_base::openmode mode) {
