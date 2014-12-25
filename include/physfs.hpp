@@ -54,7 +54,6 @@ protected:
 public:
 	base_fstream(PHYSFS_File * file);
 	virtual ~base_fstream();
-	bool eof();
 	size_t length();
 };
 

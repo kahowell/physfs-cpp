@@ -102,10 +102,6 @@ base_fstream::~base_fstream() {
 	PHYSFS_close(file);
 }
 
-bool base_fstream::eof() {
-	return PHYSFS_eof(file);
-}
-
 PhysFS::size_t base_fstream::length() {
 	return PHYSFS_fileLength(file);
 }
