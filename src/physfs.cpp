@@ -1,6 +1,7 @@
 #include <streambuf>
 #include <string>
 #include <string.h>
+#include <stdexcept>
 #include "physfs.hpp"
 
 using std::streambuf;
@@ -96,7 +97,11 @@ public:
 	}
 };
 
-base_fstream::base_fstream(PHYSFS_File* file) : file(file) {}
+base_fstream::base_fstream(PHYSFS_File* file) : file(file) {
+    if (file == NULL) {
+        throw std::invalid_argument("attempted to construct fstream with NULL ptr");
+    }
+}
 
 base_fstream::~base_fstream() {
 	PHYSFS_close(file);
@@ -106,22 +111,29 @@ PhysFS::size_t base_fstream::length() {
 	return PHYSFS_fileLength(file);
 }
 
+PHYSFS_File* openWithMode(char const * filename, mode openMode) {
+    PHYSFS_File* file = NULL;
+	switch (openMode) {
+	case WRITE:
+		file = PHYSFS_openWrite(filename);
+        break;
+	case APPEND:
+		file = PHYSFS_openAppend(filename);
+        break;
+	case READ:
+		file = PHYSFS_openRead(filename);
+	}
+    if (file == NULL) {
+        throw std::invalid_argument("file not found: " + std::string(filename));
+    }
+    return file;
+}
+
 ifstream::ifstream(const string& filename)
-	: base_fstream(PHYSFS_openRead(filename.c_str())), std::istream(new fbuf(file)) {}
+	: base_fstream(openWithMode(filename.c_str(), READ)), std::istream(new fbuf(file)) {}
 
 ifstream::~ifstream() {
 	delete rdbuf();
-}
-
-PHYSFS_File* openWithMode(char const * filename, mode openMode) {
-	switch (openMode) {
-	case WRITE:
-		return PHYSFS_openWrite(filename);
-	case APPEND:
-		return PHYSFS_openAppend(filename);
-	case READ:
-		return PHYSFS_openRead(filename);
-	}
 }
 
 ofstream::ofstream(const string& filename, mode writeMode)
