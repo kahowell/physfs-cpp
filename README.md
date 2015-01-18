@@ -9,7 +9,7 @@ Gordon and others.
 It is licensed under the zlib license - same as PhysicsFS (at the time of 
 writing).
 
-Requeriments
+Requirements
 ============
 CMake for building, and, of course, the PhysicsFS library.
 
@@ -26,4 +26,4 @@ PhysFS::Util namespace.
 `PhysFS::ofstream`.
  - ofstream's constructor takes a mode, which specifies either append or write.
  - Both ifstream and ofstream are standard streams, and only have an extra
- method - `length`, which call `PHYSFS_fileLength`.
+ method - `length`, which calls `PHYSFS_fileLength`.
