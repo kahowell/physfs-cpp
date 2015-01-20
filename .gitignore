@@ -2,3 +2,4 @@ CMakeFiles
 Makefile
 *.a
 *.cmake
+/build
