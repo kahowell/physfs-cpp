@@ -7,3 +7,8 @@ include_directories("../include"
 
 target_link_libraries(physfs++
                       ${PHYSFS_LIBRARY})
+
+install(TARGETS physfs++
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib${LIB_SUFFIX}
+        ARCHIVE DESTINATION lib${LIB_SUFFIX})
