@@ -36,7 +36,7 @@ typedef PHYSFS_sint64 sint64;
 
 typedef PHYSFS_StringCallback StringCallback;
 
-typedef PHYSFS_EnumFilesCallback EnumFilesCallback;
+typedef PHYSFS_EnumerateCallback EnumFilesCallback;
 
 typedef PHYSFS_Version Version;
 
@@ -45,6 +45,8 @@ typedef PHYSFS_Allocator Allocator;
 typedef PHYSFS_ArchiveInfo ArchiveInfo;
 
 typedef std::vector<ArchiveInfo> ArchiveInfoList;
+
+typedef PHYSFS_Stat Stat;
 
 typedef uint64 size_t;
 
@@ -93,13 +95,11 @@ void getCdRomDirs(StringCallback callback, void * extra);
 
 string getBaseDir();
 
-string getUserDir();
+string getPrefDir(const string &org, const string &app);
 
 string getWriteDir();
 
 void setWriteDir(string const & newDir);
-
-void removeFromSearchPath(string const & oldDir);
 
 StringList getSearchPath();
 
@@ -115,9 +115,11 @@ string getRealDir(string const & filename);
 
 StringList enumerateFiles(string const & directory);
 
-void enumerateFiles(string const & directory, EnumFilesCallback callback, void * extra);
+int enumerateFiles(string const & directory, EnumFilesCallback callback, void * extra);
 
 bool exists(string const & filename);
+
+Stat getStat(string const &filename);
 
 bool isDirectory(string const & filename);
 
@@ -132,6 +134,8 @@ bool symbolicLinksPermitted();
 void setAllocator(Allocator const * allocator);
 
 void mount(string const & newDir, string const & mountPoint, bool appendToPath);
+
+void unmount(string const & oldDir);
 
 string getMountPoint(string const & dir);
 
