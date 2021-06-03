@@ -36,7 +36,7 @@ typedef PHYSFS_sint64 sint64;
 
 typedef PHYSFS_StringCallback StringCallback;
 
-typedef PHYSFS_EnumFilesCallback EnumFilesCallback;
+typedef PHYSFS_EnumerateCallback EnumFilesCallback;
 
 typedef PHYSFS_Version Version;
 
@@ -46,38 +46,55 @@ typedef PHYSFS_ArchiveInfo ArchiveInfo;
 
 typedef std::vector<ArchiveInfo> ArchiveInfoList;
 
+typedef PHYSFS_Stat Stat;
+
 typedef uint64 size_t;
 
 class base_fstream {
 protected:
-	PHYSFS_File * const file;
+	PHYSFS_File* file;
 public:
-	base_fstream(PHYSFS_File * file);
+	base_fstream(PHYSFS_File* file);
 	virtual ~base_fstream();
 	size_t length();
+
+	virtual void open(std::string const& filename, mode openMode) = 0;
+	virtual void close();
 };
 
-class ifstream : public base_fstream, public std::istream {
+class ifstream : public base_fstream, public std::istream
+{
 public:
-	ifstream(string const & filename);
+	explicit ifstream(string const& filename);
 	virtual ~ifstream();
+
+	void open(std::string const& filename, mode openMode = READ) override;
+	void close() override;
 };
 
-class ofstream : public base_fstream, public std::ostream {
+class ofstream : public base_fstream, public std::ostream
+{
 public:
-	ofstream(string const & filename, mode writeMode = WRITE);
+	explicit ofstream(string const& filename, mode writeMode = WRITE);
 	virtual ~ofstream();
+
+	void open(std::string const& filename, mode openMode = WRITE) override;
+	void close() override;
 };
 
-class fstream : public base_fstream, public std::iostream {
+class fstream : public base_fstream, public std::iostream
+{
 public:
-	fstream(string const & filename, mode openMode = READ);
+	explicit fstream(string const& filename, mode openMode = READ);
 	virtual ~fstream();
+
+	void open(std::string const& filename, mode openMode = READ) override;
+	void close() override;
 };
 
 Version getLinkedVersion();
 
-void init(char const * argv0);
+void init(char const* argv0);
 
 void deinit();
 
@@ -89,51 +106,53 @@ void permitSymbolicLinks(bool allow);
 
 StringList getCdRomDirs();
 
-void getCdRomDirs(StringCallback callback, void * extra);
+void getCdRomDirs(StringCallback callback, void* extra);
 
 string getBaseDir();
 
-string getUserDir();
+string getPrefDir(const string& org, const string& app);
 
 string getWriteDir();
 
-void setWriteDir(string const & newDir);
-
-void removeFromSearchPath(string const & oldDir);
+void setWriteDir(string const& newDir);
 
 StringList getSearchPath();
 
-void getSearchPath(StringCallback callback, void * extra);
+void getSearchPath(StringCallback callback, void* extra);
 
-void setSaneConfig(string const & orgName, string const & appName, string const & archiveExt, bool includeCdRoms, bool archivesFirst);
+void setSaneConfig(string const& orgName, string const& appName, string const& archiveExt, bool includeCdRoms, bool archivesFirst);
 
-void mkdir(string const & dirName);
+int mkdir(string const& dirName);
 
-void deleteFile(string const & filename);
+int deleteFile(string const& filename);
 
-string getRealDir(string const & filename);
+string getRealDir(string const& filename);
 
-StringList enumerateFiles(string const & directory);
+StringList enumerateFiles(string const& directory);
 
-void enumerateFiles(string const & directory, EnumFilesCallback callback, void * extra);
+int enumerateFiles(string const& directory, EnumFilesCallback callback, void* extra);
 
-bool exists(string const & filename);
+bool exists(string const& filename);
 
-bool isDirectory(string const & filename);
+Stat getStat(string const& filename);
 
-bool isSymbolicLink(string const & filename);
+bool isDirectory(string const& filename);
 
-sint64 getLastModTime(string const & filename);
+bool isSymbolicLink(string const& filename);
+
+sint64 getLastModTime(string const& filename);
 
 bool isInit();
 
 bool symbolicLinksPermitted();
 
-void setAllocator(Allocator const * allocator);
+void setAllocator(Allocator const* allocator);
 
-void mount(string const & newDir, string const & mountPoint, bool appendToPath);
+void mount(string const& newDir, string const& mountPoint, bool appendToPath);
 
-string getMountPoint(string const & dir);
+void unmount(string const& oldDir);
+
+string getMountPoint(string const& dir);
 
 namespace Util {
 
@@ -161,15 +180,15 @@ sint64 swapSBE64(sint64 value);
 
 uint64 swapUBE64(uint64 value);
 
-string utf8FromUcs4(uint32 const * src);
+string utf8FromUcs4(uint32 const* src);
 
-string utf8ToUcs4(char const * src);
+string utf8ToUcs4(char const* src);
 
-string utf8FromUcs2(uint16 const * src);
+string utf8FromUcs2(uint16 const* src);
 
-string utf8ToUcs2(char const * src);
+string utf8ToUcs2(char const* src);
 
-string utf8FromLatin1(char const * src);
+string utf8FromLatin1(char const* src);
 
 }
 
